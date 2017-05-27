@@ -14,19 +14,21 @@ class ElasticActions {
     Project project
     AntBuilder ant
     File home
+    String downloadUrl
 
-    ElasticActions(Project project, File toolsDir, String version) {
+    ElasticActions(Project project, File toolsDir, String version, String downloadUrl) {
         this.project = project
         this.toolsDir = toolsDir
         this.version = version
         this.ant = project.ant
+        this.downloadUrl = downloadUrl ? downloadUrl : "https://download.elastic.co/elasticsearch/elasticsearch-"
         home = new File("$toolsDir/elastic")
     }
 
     boolean isInstalled() {
-        if(!new File("$toolsDir/elastic-${version}.zip").exists()) return false
+        if (!new File("$toolsDir/elastic-${version}.zip").exists()) return false
 
-        if(!new File("$home/bin/elasticsearch").exists()) return false
+        if (!new File("$home/bin/elasticsearch").exists()) return false
 
         boolean desiredVersion = isDesiredVersion()
 
@@ -75,13 +77,18 @@ class ElasticActions {
 
     void install(List<String> withPlugins) {
         println "${CYAN}* elastic:$NORMAL installing elastic version $version"
-        String linuxUrl = "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-${version}.tar.gz"
-        String winUrl = "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-${version}.zip"
+        String linuxUrl = "${downloadUrl}-${version}.tar.gz"
+        String winUrl = "${downloadUrl}-${version}.zip"
 
-        if (version.startsWith("2")) {
-            linuxUrl = "https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${version}/elasticsearch-${version}.tar.gz"
-            winUrl = "https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/zip/elasticsearch/${version}/elasticsearch-${version}.zip"
-        }
+        //https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.4.0.tar.gz
+
+
+//        if (version.startsWith("2")) {
+//
+//
+//            linuxUrl = "https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${version}/elasticsearch-${version}.tar.gz"
+//            winUrl = "https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/zip/elasticsearch/${version}/elasticsearch-${version}.zip"
+//        }
 
         String elasticPackage = isFamily(FAMILY_WINDOWS) ? winUrl : linuxUrl
         File elasticFile = new File("$toolsDir/elastic-${version}.zip")
